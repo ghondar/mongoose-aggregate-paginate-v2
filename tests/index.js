@@ -229,6 +229,39 @@ describe('mongoose-paginate', function () {
 
   });
 
+  it('with custom Meta label', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    const myCustomLabels = {
+      meta: 'meta',
+      docs: 'itemsList',
+      totalDocs: 'total'
+    };
+
+    var options = {
+      sort: {
+        _id: 1
+      },
+      limit: 10,
+      page: 5,
+      select: {
+        title: 1,
+        price: 1
+      },
+      customLabels: myCustomLabels
+    };
+    return Book.aggregatePaginate(query, options).then((result) => {
+      expect(result.itemsList).to.have.length(10);
+      expect(result.itemsList[0].title).to.equal('Book #41');
+      expect(result.meta).to.be.an.instanceOf(Object);
+      expect(result.meta.total).to.equal(100);
+    });
+  });
+
   after(function (done) {
     mongoose.connection.db.dropDatabase(done);
   });
